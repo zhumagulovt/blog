@@ -1,0 +1,12 @@
+{% extends 'postapp/base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="jumbotron text-center">
+    <div class="container">
+        <h1>{{ title }}</h1>
+    </div>
+</section>
+
+{% include 'postapp/posts.html' %}
+{% endblock %}

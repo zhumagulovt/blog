@@ -1,0 +1,12 @@
+<div class="card-header">Категории</div>
+<div class="card-body">
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-sm-6">
+            <ul class="list-unstyled mb-0">
+                <li><a href="{{ category.get_absolute_url }}">{{ category }}</a></li>
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</div

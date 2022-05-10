@@ -1,0 +1,40 @@
+<div class="album py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            {% for object in object_list %}
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    {% if object.photo %}
+                        <img class="bd-placeholder-img card-img-top cropped" src="{{ object.photo.url }}" alt="">
+                    {% else %}
+                    <svg class="bd-placeholder-img card-img-top" width="100%" height="225px"
+                        xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false"
+                        role="img" aria-label="Placeholder: Thumbnail">
+                        <title>Placeholder</title>
+                    </svg>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="font-weight-bolder">{{ object.title }}</h4>
+                            <p class="card-text mb-0">
+                                {{ object.content|truncatechars_html:250|safe }}
+                            </p>
+                            <div class="text-muted">
+                                <small>@{{ object.author }}</small>
+                            </div>
+                            <div class="text-muted mb-1">
+                                <small>{{ object.category }}</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="{{ object.get_absolute_url }}"
+                                        class="btn btn-sm btn-outline-secondary">Читать</a>
+                                </div>
+                                <small class="text-muted">{{ object.created_at }}</small>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

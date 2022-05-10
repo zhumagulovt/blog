@@ -1,0 +1,145 @@
+{% extends 'postapp/base.html' %}
+{% load bootstrap4 %}
+{% load postapp_tags %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Post content-->
+            <article class="break-word">
+                <!-- Post header-->
+                <header class="mb-4">
+                    <!-- Post title-->
+                    <h1 class="font-weight-bolder mb-1">{{ object.title }}</h1>
+                    <!-- Post meta content-->
+                    <div class="text-muted font-italic mb-2">Опубликовано {{ object.created_at }}</div>
+                    <!-- Post categories-->
+                    <a class="badge badge-primary text-wrap" href="#!">Web Design</a>
+                    <a class="badge bg-secondary text-decoration-none link-light" href="#!">Freebies</a>
+                </header>
+                <!-- Preview image figure-->
+                {% if object.photo %}
+                <!-- <img class="bd-placeholder-img card-img-top" src="{{ object.photo.url }}" alt=""> -->
+                <figure class="mb-4"><img class="img-fluid rounded" src="{{ object.photo.url }}" alt=""></figure>
+                {% else %}
+                <figure class="mb-4"><img class="img-fluid rounded"
+                        src="https://dummyimage.com/900x400/ced4da/6c757d.jpg" alt="..."></figure>
+                {% endif %}
+                <!-- Post content-->
+                <section class="mb" style="font-size: 1.2em;">
+                    {{ object.content|safe }}
+                </section>
+                <hr>
+                <div class="text-muted font-italic mb-2">Понравилось {{ object.likes.count }}</div>
+                
+            </article>
+            {% if request.user.is_authenticated %}
+                {% if already_liked %}
+                <form action="" method="post" id="likeForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="like" value=1>
+                    <button type="button" class="btn btn-block btn-success mb-4" style="width: 120px;">
+                        <i class="fa fa-thumbs-up">Понравилось</i>
+                    </button>
+                </form>
+                {% else %}
+                <form action="" method="post" id="likeForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="like" value=1>
+                    <button type="button" class="btn btn-block btn-primary mb-4" style="width: 120px;">
+                        <i class="fa fa-thumbs-up">Нравится</i>
+                    </button>
+                </form>
+                {% endif %}
+            {% endif %}
+            <!-- Comments section-->
+            <section class="mb-5">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        {% if request.user.is_authenticated %}
+                        <form class="mb-4" method="post" id="commentForm">
+                            {% csrf_token %}
+                            {% bootstrap_field comment_form.content show_label='skip' placeholder='Оставьте комментарий!'%}
+                            <button type="submit" class="btn btn-secondary mt-2">Комментировать</button>
+                        </form>
+                        {% else %}
+                        <div class="mb-4">
+                            <p>
+                                <a href="{% url 'users:login' %}">Войдите</a> чтобы оставить комментарий
+                            </p>
+                        </div>
+                        {% endif %}
+                        {% for comment in comments %}
+                        <div class="d-flex mb-4 ">
+                            <div class="flex-shrink-0 mr-2"><img class="rounded-circle"
+                                    src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..."></div>
+                            <div class="ms-3">
+                                <div class="fw-bold">{{ comment.author }}</div>
+                                {{ comment.content|safe }}
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </section>
+        </div>
+        <!-- Side widgets-->
+        <div class="col-lg-4">
+            <!-- Categories widget-->
+            <div class="card mb-4 mt-4">
+                {% show_categories %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block javascript %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // отслеживаем событие отправки формы
+        $('#commentForm').submit(function () {
+            // создаем AJAX-вызов
+            $.ajax({
+                data: $(this).serialize(), // получаем данные формы
+                type: $(this).attr('method'), // GET или POST
+                url: "{{ object.get_absolute_url }}",
+                // если успешно, то
+                success: function (response) {
+                    location.reload();
+                },
+                // если ошибка, то
+                error: function (response) {
+                    // предупредим об ошибке
+                    
+                }
+            });
+            return false;
+        });
+
+        $("#likeForm").click(function() {
+            $.ajax({
+                data: $(this).serialize(), // получаем данные формы
+                type: $(this).attr('method'), // GET или POST
+                url: "{{ object.get_absolute_url }}",
+                // если успешно, то
+                success: function (response) {
+                    location.reload();
+                },
+                // если ошибка, то
+                error: function (response) {
+                    
+                }
+            });
+            return false;
+        });
+    })
+
+    
+</script>
+{% endblock %}

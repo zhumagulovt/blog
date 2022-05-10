@@ -1,0 +1,20 @@
+{% extends 'postapp/base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+<div class="">
+    <div style="text-align: center;">
+        <h1>Создать </h1>
+    </div>
+
+    <form action="" method="post" class="form ">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+        {% endbuttons %}
+    </form>
+</div>
+
+{% endblock %}

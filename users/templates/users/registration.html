@@ -1,0 +1,18 @@
+{% extends 'users/base.html' %}
+
+{% load bootstrap4 %}
+{% block title %}Registration{% endblock title %}
+{% block content %}
+<main class="form-signin">
+<form action="" method="post" class="form container">
+    <h1 class="h3 mb-3 font-weight-normal">Регистрация</h1>
+    {% csrf_token %}
+    {% for f in form %}
+    {% bootstrap_field f %}
+    {% endfor %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+    {% endbuttons %}
+</form>
+</main>
+{% endblock content %}
