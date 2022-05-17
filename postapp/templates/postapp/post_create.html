@@ -1,0 +1,25 @@
+{% extends 'postapp/base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+<div class="container" style="width: 800px;">
+    <div class="mt-4" style="text-align: center;">
+        <h2>{{ title }}</h2>
+    </div>
+    <div class="mt-4"></div>
+    <form action="" method="post" class="form" enctype="multipart/form-data">
+        <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+        <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+        {% csrf_token %}
+        {% for field in form %}
+        {% bootstrap_field field show_label='skip'%}
+        {% endfor %}
+        {% buttons %}
+        <button type="submit" class="btn btn-primary">Готово</button>
+        {% endbuttons %}
+    </form>
+</div>
+
+{% endblock %}

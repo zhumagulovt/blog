@@ -1,13 +1,14 @@
-from statistics import mode
-from tabnanny import verbose
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from ckeditor_uploader.fields import RichTextUploadingField
+
 
 class Post(models.Model):
     title = models.CharField(max_length=255, verbose_name='Название')
-    content = models.TextField(verbose_name='Контент')
+    # content = models.TextField(verbose_name='Контент')
+    content = RichTextUploadingField(null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
     category = models.ForeignKey('Category', verbose_name='Категория', on_delete=models.PROTECT, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')

@@ -1,0 +1,164 @@
+{% extends 'postapp/base.html' %}
+{% block title %}{{ object.user.username }}{% endblock %}
+{% load static %}
+{% load bootstrap4 %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/styles_profile.css' %}">{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="card p-4 shadow-sm mt-5">
+        <div class="row">
+            <div class="col-4">
+                <h1 class="mb-3 text-center">@{{ object.user.username }}</h1>
+                {% if object.profile_pic %}
+                <img class="avatar" src="{{object.profile_pic.url}}" alt="...">
+                {% else %}
+                <img class="avatar" src="/media/photos/user_icon.png" alt="...">
+                {% endif %}
+
+            </div>
+            <div class="col-8">
+                <br>
+                <br>
+                {% if is_profile %}
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-6">
+                            {% bootstrap_field user_form.first_name show_label='skip' %}
+                        </div>
+                        <div class="col-6">
+                            {% bootstrap_field user_form.last_name show_label='skip' %}
+                        </div>
+                    </div>
+                    {% bootstrap_field user_form.email show_label='skip' %}
+                    {% bootstrap_field profile_form.bio show_label='skip' %}
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Изменить</button><br><br>
+                </form>
+                {% else %}
+                <div class="row">
+                    <div class="col-6">
+                        <p class="profile-text">{{ object.user.first_name }} {{ object.user.last_name }}</p>
+                    </div>
+
+                    <div class="col-6">
+
+                    </div>
+                </div>
+                <p class="profile-text">{{ object.user.email }}</p>
+                <hr>
+                {{ object.bio }}
+
+                {% endif %}
+            </div>
+        </div>
+        <div class="mx-auto">
+            <div class="row text-center" style="width: 230px">
+                <div class="col-6 p-0 br">
+                    <strong id="followers">{{ object.user.followers.count }}</strong><br>
+                    Подписчики
+                </div>
+                <div class="col-6 p-0">
+                    <strong>{{ object.user.following.count }}</strong><br>
+                    Подписки
+                </div>
+                {% if not is_profile %}
+                    {% if request.user.is_authenticated %}
+                     
+                        <form action="" method="post" id="followForm" style="width: 230px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="follow" value=1>
+                            {% if is_following %}
+                                <button class="btn btn-lg btn-primary btn-block mt-3 text-small" type="submit" id="followButton">Отписаться</button>
+                            {% else %}
+                                <button class="btn btn-lg btn-primary btn-block mt-3 text-small" type="submit" id="followButton">Подписаться</button>
+                            {% endif %} 
+                        </form>
+                        
+                    {% else %}
+                    <a class="btn btn-lg btn-primary btn-block mt-3 text-small" href="/users/login/?next={{ request.path }}">Войдите чтобы подписаться</a>
+                    {% endif %}
+                {% endif %}
+                
+            </div>
+        </div>
+
+    </div>
+    <br>
+
+    <div class="row">
+        {% for object in object_list %}
+            <div class="col-md-6">
+                <div class="card mb-4 shadow-sm">
+                    {% if object.photo %}
+                    <img class="bd-placeholder-img card-img-top cropped" src="{{ object.photo.url }}" alt="">
+                    {% else %}
+                    <svg class="bd-placeholder-img card-img-top" width="100%" height="225px"
+                        xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false"
+                        role="img" aria-label="Placeholder: Thumbnail">
+                        <title>Placeholder</title>
+                    </svg>
+                    {% endif %}
+                    <div class="card-body text-small">
+                        <h5 class="font-weight-bolder">{{ object.title|truncatechars:30 }}</h5>
+                            <div class="text-muted">
+                                <small>Нравится: {{ object.likes.count }}</small>
+                            </div>
+                            <div class="text-muted mb-1">
+                                <a href="{{ object.category.get_absolute_url }}"><small>{{ object.category }}</small></a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="{{ object.get_absolute_url }}"
+                                        class="btn btn-sm btn-primary">Читать</a>
+                                    {% if request.user == object.author %}
+                                        <a href="{% url 'postapp:post-edit' object.pk %}"
+                                        class="btn btn-sm btn-secondary">Редактировать</a>
+                                        <a href="{% url 'postapp:post-delete' object.pk %}"
+                                        class="btn btn-sm btn-danger">Удалить</a>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">{{ object.created_at }}</small>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#followForm").click(function() {
+            $.ajax({
+                data: $(this).serialize(), // получаем данные формы
+                type: $(this).attr('method'), // GET или POST
+                url: "",
+                // если успешно, то
+                success: function (response) {
+                    // alert($('#likes').text().split()[1]);
+                    let countOfFollowers = parseInt($('#followers').text())
+                    if (response.follow) {
+                        $('#followers').html(countOfFollowers+1)
+                        $('#followButton').html("Отписаться")
+                    } else {
+                        $('#followers').html(countOfFollowers-1)
+                        $('#followButton').html("Подписаться")
+                    }
+                },
+                // если ошибка, то
+                error: function (response) {
+                    
+                }
+            });
+            return false;
+        });
+    })
+
+    
+</script>
+{% endblock %}

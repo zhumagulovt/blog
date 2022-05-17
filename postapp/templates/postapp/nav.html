@@ -12,11 +12,11 @@
         <li class="nav-item active">
           <a class="nav-link" href="{% url 'postapp:category-list' %}">Категории</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Pricing</a>
+        <li class="nav-item active">
+          <a class="nav-link" href="{% url 'postapp:post-create' %}">Новый пост</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">About</a>
+        <li class="nav-item active">
+          <a class="nav-link" href="{% url 'users:user-search' %}">Пользователи</a>
         </li>
       </ul>
       <form class="form-inline mr-3" method="get" action="{% url 'postapp:post-search' %}">
@@ -25,7 +25,7 @@
       </form>
       {% if request.user.is_authenticated %}
         <span class="navbar-text">
-          {{ request.user }}
+          <a href="{% url 'users:profile-detail' request.user.username %}">{{ request.user }}</a>
         </span>
         <li class="nav-item ml-3">
           <a class="btn btn-outline-primary" href="{% url 'users:logout' %}">Выйти</a>

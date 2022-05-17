@@ -1,0 +1,36 @@
+{% extends 'postapp/base.html' %}
+
+{% block title %}Результаты Поиска{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<section class="jumbotron text-center">
+    <div class="container">
+        <form class="mx-auto" action="" method="GET" style="max-width: 420px">
+            <h1>Поиск пользователей</h1>
+            <div class="input-group text-center mt-4 mb-4">
+                <input type="text" class="form-control" name="q">
+                <div class="input-group-append">
+                    <button class="btn btn-primary btn-block" type="submit">Искать</button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</section>
+<div class="album py-5 bg-light">
+    <div class="container text-center">
+        <h1 class="font-weight-light">Результаты поиска</h1>
+        <div class="list-group">
+            {% for object in object_list %}
+                <a href="#" class="list-group-item list-group-item-action">
+                    {{ object }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

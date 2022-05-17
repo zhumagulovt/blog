@@ -15,7 +15,7 @@
                     <!-- Post meta content-->
                     <div class="text-muted font-italic mb-2">Опубликовано {{ object.created_at }}</div>
                     <!-- Post categories-->
-                    <a class="badge badge-primary text-wrap" href="#!">Web Design</a>
+                    <a class="badge badge-primary text-wrap" href="{{ object.category.get_absolute_url }}">{{ object.category }}</a>
                     <a class="badge bg-secondary text-decoration-none link-light" href="#!">Freebies</a>
                 </header>
                 <!-- Preview image figure-->
@@ -31,7 +31,7 @@
                     {{ object.content|safe }}
                 </section>
                 <hr>
-                <div class="text-muted font-italic mb-2">Понравилось {{ object.likes.count }}</div>
+                <div id="likes" class="text-muted font-italic mb-2">Понравилось {{ object.likes.count }}</div>
                 
             </article>
             {% if request.user.is_authenticated %}
@@ -39,18 +39,18 @@
                 <form action="" method="post" id="likeForm">
                     {% csrf_token %}
                     <input type="hidden" name="like" value=1>
-                    <button type="button" class="btn btn-block btn-success mb-4" style="width: 120px;">
-                        <i class="fa fa-thumbs-up">Понравилось</i>
+                    <button id="like_button" type="button" class="btn btn-block btn-success mb-4" style="width: 120px;">
+                        <i id="button_word" class="fa fa-thumbs-up">Понравилось</i>
                     </button>
                 </form>
                 {% else %}
                 <form action="" method="post" id="likeForm">
                     {% csrf_token %}
                     <input type="hidden" name="like" value=1>
-                    <button type="button" class="btn btn-block btn-primary mb-4" style="width: 120px;">
-                        <i class="fa fa-thumbs-up">Нравится</i>
+                    <button id="like_button" type="button" class="btn btn-block btn-primary mb-4" style="width: 120px;">
+                        <i id="button_word" class="fa fa-thumbs-up">Нравится</i>
                     </button>
-                </form>
+                </form> 
                 {% endif %}
             {% endif %}
             <!-- Comments section-->
@@ -129,7 +129,21 @@
                 url: "{{ object.get_absolute_url }}",
                 // если успешно, то
                 success: function (response) {
-                    location.reload();
+                    // alert($('#likes').text().split()[1]);
+                    if (response.add) {
+                       
+                        let count_of_likes = parseInt($('#likes').text().split(" ")[1]);
+                        $('#likes').html("Понравилось "+(count_of_likes+1));
+                        $('#like_button').removeClass('btn-primary').addClass('btn-success');
+                        $('#button_word').html("Понравилось");
+                    } else {
+                        let count_of_likes = parseInt($('#likes').text().split(" ")[1]);
+                        $('#likes').html("Понравилось "+(count_of_likes-1));
+                        $('#like_button').removeClass('btn-success').addClass('btn-primary');
+                        $('#button_word').html("Нравится");
+                    }
+                    
+                    
                 },
                 // если ошибка, то
                 error: function (response) {

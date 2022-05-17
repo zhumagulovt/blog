@@ -42,6 +42,12 @@ footer p {
   height: 225px; 
   object-fit: contain;
 }
+
 .break-word {
   overflow-wrap: break-word;
+}
+
+.pagination {
+  justify-content: center;
+  display: flex;
 }

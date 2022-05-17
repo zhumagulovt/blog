@@ -1,21 +1,21 @@
-from turtle import title
-from unicodedata import category
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views import generic
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Category, Post, Comment
-from .forms import CommentForm
+from .forms import CommentForm, PostForm
 
-from random import shuffle
-from string import ascii_letters
 
 class PostListView(generic.ListView):
+    paginate_by = 3
     model = Post
 
     def get_queryset(self):
         # create_random()
-        return Post.objects.filter().select_related('category', 'author')
+        return Post.objects.select_related('category', 'author').prefetch_related('likes')
 
 
 class PostDetailView(generic.DetailView):
@@ -41,9 +41,10 @@ class PostDetailView(generic.DetailView):
             if 'like' in request.POST:
                 if request.user in self.object.likes.all():
                     self.object.likes.remove(request.user)
+                    return JsonResponse({"add": False}, status=200)
                 else:
                     self.object.likes.add(request.user)
-                return JsonResponse({}, status=200)
+                    return JsonResponse({"add": True}, status=200)
 
             if comment_form.is_valid():
                 self.object.comment_set.create(
@@ -56,8 +57,46 @@ class PostDetailView(generic.DetailView):
                 return JsonResponse({"errors": errors}, status=400)
 
 
+class PostCreateView(LoginRequiredMixin, generic.edit.CreateView):
+    login_url = '/users/login/'
+    model = Post
+    form_class = PostForm
+    template_name = 'postapp/post_create.html'
+    extra_context = {'title': 'Новая публикация'}
+
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        obj = form.save(commit=False)
+        obj.author = self.request.user
+        obj.save()
+        return HttpResponseRedirect(obj.get_absolute_url())
+
+
+class PostUpdateView(LoginRequiredMixin, generic.edit.UpdateView):
+    login_url = '/users/login/'
+    model = Post
+    form_class = PostForm
+    template_name = 'postapp/post_create.html'
+    extra_context = {'title': 'Редактировать публикацию'}
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if request.user != self.object.author:
+            return redirect(self.object.get_absolute_url())
+        return super().get(request, *args, **kwargs)
+
+
+class PostDeleteView(LoginRequiredMixin, generic.edit.DeleteView):
+    model = Post
+    success_url = '/'
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
 class CategoryDetailView(generic.ListView):
 
+    paginate_by = 3
     model = Post
     template_name = 'postapp/category_detail.html'
 
@@ -67,8 +106,10 @@ class CategoryDetailView(generic.ListView):
         return data
 
     def get_queryset(self):
-        return Post.objects.filter(category_id=self.kwargs.get('pk'))
-        # return Post.objects.filter(category_id=self.kwargs.get('pk')).select_related('category')
+        # return Post.objects.filter(category_id=self.kwargs.get('pk'))
+        return Post.objects.filter(
+            category_id=self.kwargs.get('pk')).select_related('category', 'author').prefetch_related('likes')
+
 
 class CategoryListView(generic.ListView):
 
@@ -79,37 +120,15 @@ class SearchResultView(generic.ListView):
 
     model = Post
     template_name = 'postapp/search_result.html'
-    
+
     def get_queryset(self):
         query = self.request.GET.get('q')
 
         if query is not None and query != '':
 
-            object_list = Post.objects.filter(title__icontains=query)
+            object_list = Post.objects.filter(title__icontains=query).select_related('category', 'author').prefetch_related('likes')
 
             return object_list
 
 
-def create_random():
 
-    author = User.objects.get(pk=2)
-
-    cat = Category.objects.get(pk=1)
-    t = list(ascii_letters)
-    c = list(ascii_letters*10)
-    for i in range(200):
-        shuffle(t)
-        shuffle(c)
-        t_ = ''.join(t)
-        c_ = ''.join(c)
-        Post.objects.create(title=t_, content=c_, author=author, category=cat)
-
-# class PostCreateView(LoginRequiredMixin, generic.CreateView):
-#     login_url = '/users/login/'
-#     # redirect_field_name = reverse('post-detail', kwargs={'pk': 1})
-#     form_class = PostForm
-#     template_name = 'postapp/post_create_form.html'
-
-#     def form_valid(self, form):
-#         form.instance.author = self.request.user
-#         return super().form_valid(form)

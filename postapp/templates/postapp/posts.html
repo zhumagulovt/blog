@@ -5,7 +5,7 @@
             <div class="col-md-4">
                 <div class="card mb-4 shadow-sm">
                     {% if object.photo %}
-                        <img class="bd-placeholder-img card-img-top cropped" src="{{ object.photo.url }}" alt="">
+                    <img class="bd-placeholder-img card-img-top cropped" src="{{ object.photo.url }}" alt="">
                     {% else %}
                     <svg class="bd-placeholder-img card-img-top" width="100%" height="225px"
                         xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false"
@@ -21,13 +21,20 @@
                             <div class="text-muted">
                                 <small>@{{ object.author }}</small>
                             </div>
+                            <div class="text-muted">
+                                <small>Нравится: {{ object.likes.count }}</small>
+                            </div>
                             <div class="text-muted mb-1">
-                                <small>{{ object.category }}</small>
+                                <a href="{{ object.category.get_absolute_url }}"><small>{{ object.category }}</small></a>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <a href="{{ object.get_absolute_url }}"
-                                        class="btn btn-sm btn-outline-secondary">Читать</a>
+                                        class="btn btn-sm btn-primary">Читать</a>
+                                    {% if request.user == object.author %}
+                                        <a href="{% url 'postapp:post-edit' object.pk %}"
+                                        class="btn btn-sm btn-secondary">Редактировать</a>
+                                    {% endif %}
                                 </div>
                                 <small class="text-muted">{{ object.created_at }}</small>
                             </div>
@@ -35,6 +42,36 @@
                 </div>
             </div>
             {% endfor %}
+            <div class="text-center" style="width: 100%;">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1">Первый</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            {{ page_obj.previous_page_number }}
+                        </a>
+                        
+                    </li>
+
+                    {% endif %}
+            
+                    <li class="page-item active"><a class="page-link">{{ page_obj.number }}</a></li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            {{ page_obj.next_page_number }}
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последний</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
+
+
     </div>
+
+
+
 </div>
