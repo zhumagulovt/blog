@@ -40,8 +40,6 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'postapp.apps.PostappConfig',
-    'posts.apps.PostsConfig',
-    'rest_framework',
     'bootstrap4',
     'ckeditor',
     'ckeditor_uploader',

@@ -8,13 +8,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Category, Post, Comment
 from .forms import CommentForm, PostForm
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
 
 class PostListView(generic.ListView):
     paginate_by = 3
     model = Post
 
     def get_queryset(self):
-        # create_random()
         return Post.objects.select_related('category', 'author').prefetch_related('likes')
 
 
@@ -36,7 +38,7 @@ class PostDetailView(generic.DetailView):
         self.object = self.get_object()
         data = super().get_context_data(**kwargs)
 
-        if request.is_ajax():
+        if is_ajax(request=request):
 
             if 'like' in request.POST:
                 if request.user in self.object.likes.all():

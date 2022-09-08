@@ -9,6 +9,9 @@ from django.views import generic
 from .forms import CustomUserChangeForm, CustomUserCreationForm, ProfileEditForm
 from .models import Profile, UserFollowing
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
 
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
@@ -26,7 +29,7 @@ class ProfileDetailView(generic.DetailView):
     def post(self, request, *args, **kwargs):
         self.object=self.get_object()
 
-        if request.is_ajax():
+        if is_ajax(request=request):
 
             if 'follow' in request.POST:
 
@@ -66,6 +69,7 @@ class ProfileDetailView(generic.DetailView):
 
 
     def get(self, request, *args, **kwargs):
+        print("----------")
         self.object=self.get_object()
         context = self.get_context_data(object=self.object)
         context['object_list'] = self.object.user.post_set.select_related('category').prefetch_related('likes')
